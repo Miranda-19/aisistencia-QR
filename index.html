@@ -1,485 +1,697 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Control de Asistencia QR</title>
-<script src="https://unpkg.com/html5-qrcode"></script>
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Asistencia QR | Consejo Técnico Distrital</title>
+
+  <!-- Fuente profesional -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lector QR -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
     :root {
-        --primary: #1a73e8;
-        --primary-dark: #1557b0;
-        --success: #0d9f6e;
-        --warning: #e6a700;
-        --error: #d93025;
-        --bg: #0f172a;
-        --card: #1e293b;
-        --text: #f1f5f9;
-        --text-muted: #94a3b8;
-        --border: #334155;
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --success: #059669;
+      --warning: #d97706;
+      --error: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
     }
 
     * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-        line-height: 1.4;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .contenedor {
-        width: 100%;
-        max-width: 420px;
-        background: var(--card);
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        border: 1px solid var(--border);
-    }
-
-    /* Header */
+    /* ========== HEADER ========== */
     .header {
-        background: linear-gradient(135deg, #1a73e8, #0d47a1);
-        padding: 28px 24px 24px;
-        text-align: center;
-        position: relative;
+      background: var(--primary);
+      color: white;
+      padding: 28px 20px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
     }
 
-    .header::after {
-        content: '';
-        position: absolute;
-        bottom: -1px;
-        left: 0;
-        right: 0;
-        height: 20px;
-        background: var(--card);
-        border-radius: 20px 20px 0 0;
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -20%;
+      width: 140%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(37,99,235,0.15) 0%, transparent 60%);
+      pointer-events: none;
     }
 
-    .logo {
-        font-size: 32px;
-        margin-bottom: 8px;
+    .header-content {
+      position: relative;
+      z-index: 1;
     }
 
-    h1 {
-        font-size: 22px;
-        font-weight: 700;
-        letter-spacing: -0.3px;
-        margin-bottom: 4px;
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 6px;
     }
 
-    .subtitulo {
-        font-size: 13px;
-        opacity: 0.9;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
+    .header p {
+      font-size: 0.875rem;
+      opacity: 0.75;
+      font-weight: 400;
     }
 
-    /* Body */
-    .body {
-        padding: 8px 24px 28px;
+    .badge {
+      display: inline-block;
+      margin-top: 12px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
     }
 
-    /* Botón principal */
-    #botonCamara {
-        width: 100%;
-        border: none;
-        border-radius: 14px;
-        padding: 16px;
-        font-size: 16px;
-        font-weight: 600;
-        background: var(--primary);
-        color: white;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        box-shadow: 0 4px 14px rgba(26, 115, 232, 0.35);
+    /* ========== LAYOUT ========== */
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
     }
 
-    #botonCamara:hover:not(:disabled) {
-        background: var(--primary-dark);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(26, 115, 232, 0.45);
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 16px;
     }
 
-    #botonCamara:active:not(:disabled) {
-        transform: translateY(0);
+    .card-body {
+      padding: 24px 20px;
     }
 
-    #botonCamara:disabled {
-        background: #334155;
-        color: #94a3b8;
-        cursor: not-allowed;
-        box-shadow: none;
+    /* ========== BOTÓN PRINCIPAL ========== */
+    .btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--accent);
+      color: white;
     }
 
-    #botonCamara.activa {
-        background: #0d9f6e;
-        box-shadow: 0 4px 14px rgba(13, 159, 110, 0.35);
+    .btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
     }
 
-    /* Lector QR */
-    #reader {
-        width: 100%;
-        margin: 20px 0 8px;
-        border-radius: 16px;
-        overflow: hidden;
-        background: #0f172a;
-        border: 1px solid var(--border);
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
     }
 
-    #reader video {
-        border-radius: 16px !important;
+    .btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
-    /* Resultado */
+    .btn-icon {
+      font-size: 1.15rem;
+    }
+
+    /* ========== ESTADO CÁMARA ========== */
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+
+    .status.active {
+      color: var(--success);
+    }
+
+    .status.active .status-dot {
+      background: var(--success);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* ========== LECTOR ========== */
+    #lector {
+      width: 100%;
+      max-width: 360px;
+      margin: 20px auto 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0f172a;
+    }
+
+    #lector video {
+      border-radius: 12px !important;
+    }
+
+    /* ========== MENSAJES ========== */
+    #mensaje {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-align: center;
+      display: none;
+    }
+
+    #mensaje.info {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    #mensaje.exito {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    #mensaje.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    #mensaje.advertencia {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    /* ========== RESULTADO ========== */
     #resultado {
-        margin-top: 8px;
-        padding: 22px 18px;
-        border-radius: 16px;
-        text-align: center;
-        transition: all 0.3s ease;
-        border: 1px solid transparent;
-        min-height: 90px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+      margin-top: 16px;
+      padding: 24px 20px;
+      border-radius: 14px;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.35s ease;
     }
 
-    #resultado.aviso {
-        background: rgba(230, 167, 0, 0.12);
-        border-color: rgba(230, 167, 0, 0.25);
-        color: #fbbf24;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    #resultado.ok {
-        background: rgba(13, 159, 110, 0.15);
-        border-color: rgba(13, 159, 110, 0.3);
-        color: #34d399;
-        animation: successPulse 0.5s ease;
+    #resultado .icono {
+      font-size: 2.75rem;
+      margin-bottom: 10px;
+      line-height: 1;
     }
 
-    #resultado.error {
-        background: rgba(217, 48, 37, 0.15);
-        border-color: rgba(217, 48, 37, 0.3);
-        color: #f87171;
-        animation: shake 0.4s ease;
+    #resultado .nombre {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
     }
 
-    .estado {
-        font-size: 17px;
-        font-weight: 700;
-        margin-bottom: 6px;
-        letter-spacing: -0.2px;
+    #resultado .detalle {
+      font-size: 0.9rem;
+      font-weight: 500;
+      opacity: 0.9;
     }
 
-    .nombre {
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--text);
-        margin-top: 4px;
-        line-height: 1.3;
+    .resultado-ok {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
     }
 
-    .hora {
-        font-size: 15px;
-        color: var(--text-muted);
-        margin-top: 8px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        justify-content: center;
+    .resultado-ya {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
     }
 
-    /* Animaciones */
-    @keyframes successPulse {
-        0% { transform: scale(0.96); opacity: 0.7; }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); opacity: 1; }
+    .resultado-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
     }
 
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        20%, 60% { transform: translateX(-6px); }
-        40%, 80% { transform: translateX(6px); }
+    /* ========== AYUDA ========== */
+    .help {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
     }
 
-    /* Footer sutil */
+    .help strong {
+      display: block;
+      color: var(--text);
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .help ol {
+      padding-left: 18px;
+      margin: 0;
+    }
+
+    .help li {
+      margin-bottom: 6px;
+    }
+
+    /* ========== FOOTER ========== */
     .footer {
-        text-align: center;
-        padding: 0 24px 20px;
-        font-size: 11px;
-        color: var(--text-muted);
-        letter-spacing: 0.3px;
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
     }
 
-    /* Responsive */
-    @media (max-width: 380px) {
-        .header { padding: 24px 20px 20px; }
-        .body { padding: 8px 18px 24px; }
-        h1 { font-size: 20px; }
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 420px) {
+      .header {
+        padding: 24px 16px 28px;
+      }
+
+      .header h1 {
+        font-size: 1.3rem;
+      }
+
+      .card-body {
+        padding: 20px 16px;
+      }
+
+      #resultado .nombre {
+        font-size: 1.15rem;
+      }
     }
-</style>
+  </style>
 </head>
 <body>
-<div class="contenedor">
-    <div class="header">
-        <div class="logo">📱</div>
-        <h1>Control de Asistencia</h1>
-        <div class="subtitulo">Lector QR Profesional</div>
-    </div>
 
-    <div class="body">
-        <button id="botonCamara" onclick="iniciarCamara()">
-            <span>📷</span>
-            <span>ACTIVAR CÁMARA</span>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-content">
+      <h1>Asistencia QR</h1>
+      <p>Registro de asistencia mediante código QR</p>
+      <div class="badge">Consejo Técnico Distrital</div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO -->
+  <main class="container">
+
+    <div class="card">
+      <div class="card-body">
+
+        <button id="btnCamara" class="btn" onclick="iniciarCamara()">
+          <span class="btn-icon">📷</span>
+          <span id="btnTexto">Activar cámara</span>
         </button>
 
-        <div id="reader"></div>
-
-        <div id="resultado" class="aviso">
-            <div class="estado">Presione el botón para comenzar</div>
+        <div id="estadoCamara" class="status">
+          <span class="status-dot"></span>
+          <span>Cámara desactivada</span>
         </div>
+
+        <div id="lector"></div>
+
+        <div id="mensaje"></div>
+        <div id="resultado"></div>
+
+      </div>
+    </div>
+
+    <div class="help">
+      <strong>Instrucciones de uso</strong>
+      <ol>
+        <li>Presione el botón <strong>Activar cámara</strong>.</li>
+        <li>Permita el acceso a la cámara cuando el navegador lo solicite.</li>
+        <li>Coloque el código QR frente a la cámara.</li>
+        <li>El sistema registrará la asistencia automáticamente.</li>
+        <li>El lector quedará listo para el siguiente participante.</li>
+      </ol>
     </div>
 
     <div class="footer">
-        Sistema de registro de asistencia
+      Sistema de Asistencia QR · Consejo Técnico Distrital
     </div>
-</div>
 
-<script>
-// ============================================================
-// URL DE TU APPS SCRIPT
-// ============================================================
-const URL_APPS_SCRIPT =
-"https://script.google.com/macros/s/AKfycbwr30ZiL8XXC3kXs_-Sb-EjUAqflNtyOqBIhCz-MEz0CrXBF-wFL5Zr0IxG7pnXPkMk/exec";
+  </main>
 
-let lector = null;
-let procesando = false;
+  <script>
+    /* =========================================================
+       CONFIGURACIÓN
+    ========================================================= */
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbw2OTdT2fdmfhhKmCBP9hcKHvBxlChu-E9sInf6salxQTa6ok1JCEiKQ4b8mNW3BTWi/exec";
 
-// ============================================================
-// ACTIVAR CÁMARA
-// ============================================================
-async function iniciarCamara() {
-    const boton = document.getElementById("botonCamara");
-    boton.disabled = true;
-    boton.innerHTML = "<span>⏳</span><span>ACTIVANDO CÁMARA...</span>";
+    /* =========================================================
+       VARIABLES
+    ========================================================= */
+    let lector = null;
+    let camaraActiva = false;
+    let procesando = false;
+    let ultimoQR = "";
+    let ultimoTiempoQR = 0;
 
-    try {
-        // Solicitar permiso de cámara
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: "environment" } }
-        });
+    /* =========================================================
+       UTILIDADES DE INTERFAZ
+    ========================================================= */
+    function mostrarMensaje(texto, tipo = "info") {
+      const el = document.getElementById("mensaje");
+      el.className = tipo;
+      el.innerHTML = texto;
+      el.style.display = "block";
+    }
+
+    function ocultarMensaje() {
+      document.getElementById("mensaje").style.display = "none";
+    }
+
+    function actualizarEstadoCamara(activo, texto) {
+      const estado = document.getElementById("estadoCamara");
+      const btn = document.getElementById("btnCamara");
+      const btnTexto = document.getElementById("btnTexto");
+
+      if (activo) {
+        estado.className = "status active";
+        estado.innerHTML = `<span class="status-dot"></span><span>${texto}</span>`;
+        btnTexto.textContent = "Cámara activa";
+      } else {
+        estado.className = "status";
+        estado.innerHTML = `<span class="status-dot"></span><span>${texto}</span>`;
+        btnTexto.textContent = "Activar cámara";
+      }
+    }
+
+    /* =========================================================
+       INICIAR CÁMARA
+    ========================================================= */
+    async function iniciarCamara() {
+      const boton = document.getElementById("btnCamara");
+
+      try {
+        if (camaraActiva) return;
+
+        // Verificar HTTPS
+        if (location.protocol !== "https:" && location.hostname !== "localhost") {
+          mostrarMensaje("❌ Esta página debe abrirse mediante HTTPS para utilizar la cámara.", "error");
+          return;
+        }
+
+        boton.disabled = true;
+        document.getElementById("btnTexto").textContent = "Iniciando...";
+        actualizarEstadoCamara(false, "Activando cámara...");
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Este navegador no permite utilizar la cámara.");
+        }
+
+        // Solicitar permiso
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         stream.getTracks().forEach(track => track.stop());
 
-        lector = new Html5Qrcode("reader");
+        // Obtener cámaras
+        const camaras = await Html5Qrcode.getCameras();
+        if (!camaras || camaras.length === 0) {
+          throw new Error("No se encontró ninguna cámara.");
+        }
+
+        // Preferir cámara trasera
+        let camaraSeleccionada = camaras[0];
+        const camaraTrasera = camaras.find(c => {
+          const nombre = (c.label || "").toLowerCase();
+          return nombre.includes("back") || nombre.includes("rear") || 
+                 nombre.includes("trasera") || nombre.includes("posterior");
+        });
+        if (camaraTrasera) camaraSeleccionada = camaraTrasera;
+
+        lector = new Html5Qrcode("lector");
+
+        const config = {
+          fps: 15,
+          qrbox: function(w, h) {
+            const size = Math.min(w, h) * 0.72;
+            return { width: Math.floor(size), height: Math.floor(size) };
+          },
+          aspectRatio: 1.0,
+          disableFlip: false
+        };
 
         await lector.start(
-            { facingMode: "environment" },
-            {
-                fps: 10,
-                qrbox: { width: 250, height: 250 }
-            },
-            codigoQR => {
-                procesarQR(codigoQR);
-            },
-            error => {
-                // Errores normales de lectura (ignorar)
-            }
+          camaraSeleccionada.id,
+          config,
+          (decodedText) => procesarQR(decodedText),
+          () => {} // ignorar errores de lectura continua
         );
 
-        boton.innerHTML = "<span>🟢</span><span>CÁMARA ACTIVA</span>";
-        boton.classList.add("activa");
-
-        mostrarMensaje("AVISO", "Apunte el código QR al recuadro", "", "");
-    } catch (error) {
-        console.error(error);
+        camaraActiva = true;
         boton.disabled = false;
-        boton.innerHTML = "<span>📷</span><span>ACTIVAR CÁMARA</span>";
-        boton.classList.remove("activa");
+        actualizarEstadoCamara(true, "Listo para escanear");
+        mostrarMensaje("Cámara activa. Acerque el código QR.", "info");
 
-        mostrarMensaje("ERROR", "No se pudo activar la cámara", "", "");
-        hablar("No se pudo activar la cámara");
-    }
-}
+      } catch (error) {
+        console.error(error);
+        camaraActiva = false;
+        boton.disabled = false;
+        actualizarEstadoCamara(false, "Cámara desactivada");
 
-// ============================================================
-// PROCESAR QR
-// ============================================================
-function procesarQR(codigo) {
-    if (procesando) return;
+        let mensaje = "❌ No se pudo activar la cámara.";
 
-    procesando = true;
-    const ci = String(codigo).trim();
-
-    if (ci === "") {
-        procesando = false;
-        return;
-    }
-
-    if (lector) {
-        lector.pause(true);
-    }
-
-    mostrarMensaje("AVISO", "Verificando asistencia...", "", "");
-    enviarCI(ci);
-}
-
-// ============================================================
-// ENVIAR C.I.
-// ============================================================
-function enviarCI(ci) {
-    const callbackName = "respuestaQR_" + Date.now();
-
-    window[callbackName] = function(respuesta) {
-        try {
-            mostrarResultado(respuesta);
-        } finally {
-            delete window[callbackName];
-            setTimeout(function() {
-                procesando = false;
-                if (lector) {
-                    lector.resume();
-                }
-            }, 3000);
+        if (error.name === "NotAllowedError") {
+          mensaje += "<br><br>El permiso de cámara fue rechazado. Debe permitir el acceso en el navegador.";
+        } else if (error.name === "NotFoundError") {
+          mensaje += "<br><br>No se encontró ninguna cámara.";
+        } else if (error.name === "NotReadableError") {
+          mensaje += "<br><br>La cámara está siendo utilizada por otra aplicación.";
+        } else if (error.name === "SecurityError") {
+          mensaje += "<br><br>El navegador bloqueó el acceso por seguridad.";
+        } else {
+          mensaje += "<br><br>" + (error.message || "Error desconocido.");
         }
-    };
 
-    const script = document.createElement("script");
-    script.src = URL_APPS_SCRIPT +
-        "?ci=" + encodeURIComponent(ci) +
-        "&callback=" + callbackName;
+        mostrarMensaje(mensaje, "error");
+      }
+    }
 
-    script.onerror = function() {
-        mostrarMensaje("ERROR", "Error de conexión con el sistema", "", "");
-        hablar("Error de conexión con el sistema");
-        delete window[callbackName];
+    /* =========================================================
+       PROCESAR QR
+    ========================================================= */
+    function procesarQR(texto) {
+      if (procesando) return;
 
-        setTimeout(function() {
-            procesando = false;
-            if (lector) {
-                lector.resume();
-            }
-        }, 3000);
-    };
+      const ci = String(texto).trim().replace(/\s+/g, "");
+      if (!ci) return;
 
-    document.body.appendChild(script);
-}
+      const ahora = Date.now();
+      if (ci === ultimoQR && ahora - ultimoTiempoQR < 2500) return;
 
-// ============================================================
-// MOSTRAR RESULTADO
-// ============================================================
-function mostrarResultado(respuesta) {
-    if (!respuesta) {
-        mostrarMensaje("ERROR", "Sin respuesta del sistema", "", "");
-        hablar("Sin respuesta del sistema");
+      ultimoQR = ci;
+      ultimoTiempoQR = ahora;
+      procesando = true;
+
+      try {
+        if (lector) lector.pause(true);
+      } catch (e) {}
+
+      mostrarMensaje("Verificando asistencia...", "info");
+      enviarCI(ci);
+    }
+
+    /* =========================================================
+       ENVIAR A GOOGLE APPS SCRIPT (JSONP)
+    ========================================================= */
+    function enviarCI(ci) {
+      const callbackName = "respuestaQR_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+      const url = URL_APPS_SCRIPT + "?ci=" + encodeURIComponent(ci) + "&callback=" + encodeURIComponent(callbackName);
+
+      const script = document.createElement("script");
+      let finalizado = false;
+
+      const tiempoEspera = setTimeout(() => {
+        if (finalizado) return;
+        finalizar();
+        mostrarResultado({ ok: false, mensaje: "El servidor está tardando demasiado en responder." });
+        reanudarLector();
+      }, 10000);
+
+      function finalizar() {
+        if (finalizado) return;
+        finalizado = true;
+        clearTimeout(tiempoEspera);
+        try { delete window[callbackName]; } catch (e) {}
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[callbackName] = function(respuesta) {
+        if (finalizado) return;
+        finalizar();
+        mostrarResultado(respuesta);
+        reanudarLector();
+      };
+
+      script.onerror = function() {
+        if (finalizado) return;
+        finalizar();
+        mostrarResultado({ ok: false, mensaje: "No se pudo comunicar con el servidor." });
+        reanudarLector();
+      };
+
+      script.src = url;
+      document.body.appendChild(script);
+    }
+
+    function reanudarLector() {
+      procesando = false;
+      setTimeout(() => {
+        try {
+          if (lector && camaraActiva) lector.resume();
+        } catch (e) {}
+      }, 450);
+    }
+
+    /* =========================================================
+       MOSTRAR RESULTADO
+    ========================================================= */
+    function mostrarResultado(respuesta) {
+      const resultado = document.getElementById("resultado");
+
+      if (!respuesta) {
+        respuesta = { ok: false, mensaje: "Respuesta vacía del servidor." };
+      }
+
+      const ok = respuesta.ok === true || respuesta.estado === "OK";
+      const yaRegistrado = respuesta.estado === "YA" || respuesta.yaRegistrado === true;
+      const nombre = respuesta.nombre || respuesta.nombreCompleto || "";
+
+      if (ok) {
+        resultado.className = "resultado-ok";
+        resultado.innerHTML = `
+          <div class="icono">✅</div>
+          <div class="nombre">${nombre || "Participante"}</div>
+          <div class="detalle">Asistencia registrada correctamente</div>
+        `;
+        resultado.style.display = "block";
+        mostrarMensaje("✅ Asistencia registrada", "exito");
+        setTimeout(() => hablar(`Asistencia registrada. ${nombre || "Participante"}`), 50);
         return;
-    }
+      }
 
-    if (respuesta.estado === "OK") {
-        mostrarMensaje(
-            "OK",
-            "✅ Asistencia registrada",
-            respuesta.nombre,
-            respuesta.hora
-        );
-        hablar("Asistencia registrada. " + respuesta.nombre);
+      if (yaRegistrado) {
+        resultado.className = "resultado-ya";
+        resultado.innerHTML = `
+          <div class="icono">⚠️</div>
+          <div class="nombre">${nombre || "Participante"}</div>
+          <div class="detalle">Ya tiene la asistencia registrada</div>
+        `;
+        resultado.style.display = "block";
+        mostrarMensaje("⚠️ Ya tiene asistencia registrada", "advertencia");
+        setTimeout(() => hablar(`Atención. ${nombre || "Participante"}. Ya tiene registrada su asistencia.`), 50);
         return;
+      }
+
+      // Error
+      resultado.className = "resultado-error";
+      resultado.innerHTML = `
+        <div class="icono">❌</div>
+        <div class="nombre">Error</div>
+        <div class="detalle">${respuesta.mensaje || respuesta.error || "No se pudo registrar la asistencia."}</div>
+      `;
+      resultado.style.display = "block";
+      mostrarMensaje("❌ No se pudo registrar", "error");
+      setTimeout(() => hablar("No se pudo registrar la asistencia."), 50);
     }
 
-    if (respuesta.estado === "YA") {
-        mostrarMensaje(
-            "AVISO",
-            "⚠️ Asistencia ya registrada",
-            respuesta.nombre,
-            ""
-        );
-        hablar("Asistencia ya registrada. " + respuesta.nombre);
-        return;
-    }
-
-    if (respuesta.estado === "FUERA") {
-        mostrarMensaje(
-            "AVISO",
-            "⏰ Fuera del horario permitido",
-            respuesta.nombre,
-            ""
-        );
-        hablar("Fuera del horario. " + respuesta.nombre);
-        return;
-    }
-
-    mostrarMensaje(
-        "ERROR",
-        "❌ " + (respuesta.mensaje || "Error desconocido"),
-        "",
-        ""
-    );
-    hablar(respuesta.mensaje || "Error");
-}
-
-// ============================================================
-// MOSTRAR MENSAJE
-// ============================================================
-function mostrarMensaje(tipo, mensaje, nombre, hora) {
-    const resultado = document.getElementById("resultado");
-    resultado.className = "";
-
-    if (tipo === "OK") {
-        resultado.classList.add("ok");
-    } else if (tipo === "ERROR") {
-        resultado.classList.add("error");
-    } else {
-        resultado.classList.add("aviso");
-    }
-
-    let html = `<div class="estado">${mensaje}</div>`;
-
-    if (nombre) {
-        html += `<div class="nombre">${nombre}</div>`;
-    }
-
-    if (hora) {
-        html += `<div class="hora">🕐 ${hora}</div>`;
-    }
-
-    resultado.innerHTML = html;
-}
-
-// ============================================================
-// VOZ
-// ============================================================
-function hablar(texto) {
-    try {
+    /* =========================================================
+       SÍNTESIS DE VOZ
+    ========================================================= */
+    function hablar(texto) {
+      try {
         if (!("speechSynthesis" in window)) return;
-
-        window.speechSynthesis.cancel();
+        speechSynthesis.cancel();
         const voz = new SpeechSynthesisUtterance(texto);
         voz.lang = "es-ES";
-        voz.rate = 0.95;
+        voz.rate = 1.05;
         voz.pitch = 1;
-        window.speechSynthesis.speak(voz);
-    } catch (error) {
-        console.log(error);
+        voz.volume = 1;
+        speechSynthesis.speak(voz);
+      } catch (e) {
+        console.log("Error de síntesis de voz:", e);
+      }
     }
-}
-</script>
+
+    /* =========================================================
+       LIMPIEZA AL SALIR
+    ========================================================= */
+    window.addEventListener("beforeunload", () => {
+      try {
+        if (lector) lector.stop().catch(() => {});
+      } catch (e) {}
+    });
+  </script>
 </body>
 </html>
